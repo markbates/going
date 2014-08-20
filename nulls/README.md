@@ -1,4 +1,4 @@
-# github.com/markbates/deano/nulls
+# github.com/markbates/going/nulls
 
 This package should be used in place of the built-in null types in the `sql` package.
 
@@ -7,7 +7,7 @@ The real benefit of this packages comes in its implementation of `MarshalJSON` a
 ## Installation
 
 ``` bash
-$ go get github.com/markbates/deano/nulls
+$ go get github.com/markbates/going/nulls
 ```
 
 ## Supported Datatypes

@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/markbates/deano/nulls"
+	. "github.com/markbates/going/nulls"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -4,5 +4,5 @@ This project houses, what I consider to be some help packages for writing Go app
 
 ## Packages
 
-* [nulls](http://github.com/markbates/deano/nulls) - Proper JSON implementations of `null` database types.
-* [validate](http://github.com/markbates/deano/validate) - A framework for writing validations.
+* [nulls](http://github.com/markbates/going/nulls) - Proper JSON implementations of `null` database types.
+* [validate](http://github.com/markbates/going/validate) - A framework for writing validations.

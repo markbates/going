@@ -1,4 +1,4 @@
-# github.com/markbates/deano/validate
+# github.com/markbates/going/validate
 
 This package provides a framework for writing validations for Go applications. It does not, however, provide you with any actual validators, that part is up to you.
 
@@ -20,7 +20,7 @@ package main
 import (
 	"log"
 
-	v "github.com/markbates/deano/validate"
+	v "github.com/markbates/going/validate"
 )
 
 type User struct {
@@ -55,7 +55,7 @@ import (
 	"log"
 	"strings"
 
-	v "github.com/markbates/deano/validate"
+	v "github.com/markbates/going/validate"
 )
 
 type User struct {
