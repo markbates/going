@@ -1,4 +1,4 @@
-# github.com/markbates
+# github.com/markbates/going
 
 This project houses, what I consider to be some help packages for writing Go applications. Your mileage may vary, but I find them to be pretty dang helpful.
 
