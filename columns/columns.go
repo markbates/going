@@ -66,6 +66,9 @@ func (c *Columns) Remove(names ...string) {
 func ColumnsForStruct(s interface{}) Columns {
 	columns := Columns{}
 	st := reflect.TypeOf(s)
+	if st.Kind().String() == "ptr" {
+		st = reflect.ValueOf(s).Elem().Type()
+	}
 	field_count := st.NumField()
 
 	var w sync.WaitGroup

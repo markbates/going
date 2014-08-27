@@ -7,14 +7,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestColumnsForStruct(t *testing.T) {
+type foo struct {
+	FirstName string `db:"first_name"`
+	LastName  string
+	Email     string `db:"email_address"`
+	Unwanted  string `db:"-"`
+}
+
+func Test_ColumnsForStruct(t *testing.T) {
 	assert := assert.New(t)
-	type foo struct {
-		FirstName string `db:"first_name"`
-		LastName  string
-		Email     string `db:"email_address"`
-		Unwanted  string `db:"-"`
-	}
 
 	f := foo{}
 	columns := ColumnsForStruct(f)
@@ -37,4 +38,13 @@ func TestColumnsForStruct(t *testing.T) {
 	assert.Equal(columns.NamesString(), "first_name, LastName")
 	assert.Equal(columns.SymbolizedNamesString(), ":first_name, :LastName")
 	assert.Equal(columns.UpdatesString(), "first_name = :first_name, LastName = :LastName")
+}
+
+func Test_ColumnsForStruct_WithPointer(t *testing.T) {
+	assert := assert.New(t)
+	f := &foo{}
+
+	columns := ColumnsForStruct(f)
+	assert.Equal(columns.Names, []string{"first_name", "LastName", "email_address"})
+	assert.Equal(columns.SymbolizedNames, []string{":first_name", ":LastName", ":email_address"})
 }
