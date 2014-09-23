@@ -10,6 +10,7 @@ import (
 type Columns struct {
 	Names           []string
 	SymbolizedNames []string
+	keys            map[string]string
 }
 
 // NamesString is a comma separated list of the column names.
@@ -35,14 +36,18 @@ func (c *Columns) UpdatesString() string {
 
 // Add a column to the list.
 func (c *Columns) Add(name string) {
-	c.Names = append(c.Names, name)
-	c.SymbolizedNames = append(c.SymbolizedNames, fmt.Sprintf(":%s", name))
+	if c.keys[name] == "" {
+		c.Names = append(c.Names, name)
+		c.SymbolizedNames = append(c.SymbolizedNames, fmt.Sprintf(":%s", name))
+		c.keys[name] = name
+	}
 }
 
 // Remove a column from the list.
 func (c *Columns) Remove(names ...string) {
 	tmp := []string{}
 	for _, name := range c.Names {
+		delete(c.keys, name)
 		found := false
 		for _, n := range names {
 			if n == name {
@@ -61,10 +66,14 @@ func (c *Columns) Remove(names ...string) {
 	}
 }
 
+func NewColumns() Columns {
+	return Columns{keys: map[string]string{}}
+}
+
 // ColumnsForStruct returns a Columns instance for
 // the struct passed in.
 func ColumnsForStruct(s interface{}) Columns {
-	columns := Columns{}
+	columns := NewColumns()
 	st := reflect.TypeOf(s)
 	if st.Kind().String() == "ptr" {
 		st = reflect.ValueOf(s).Elem().Type()

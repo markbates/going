@@ -40,6 +40,18 @@ func Test_ColumnsForStruct(t *testing.T) {
 	assert.Equal(columns.UpdatesString(), "first_name = :first_name, LastName = :LastName")
 }
 
+func Test_Columns_Add_Duplicates(t *testing.T) {
+	a := assert.New(t)
+
+	columns := NewColumns()
+	columns.Add("foo")
+	a.Equal(columns.Names, []string{"foo"})
+
+	// adding the same column again should have no effect:
+	columns.Add("foo")
+	a.Equal(columns.Names, []string{"foo"})
+}
+
 func Test_ColumnsForStruct_WithPointer(t *testing.T) {
 	assert := assert.New(t)
 	f := &foo{}
