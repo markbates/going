@@ -35,11 +35,13 @@ func (c *Columns) UpdatesString() string {
 }
 
 // Add a column to the list.
-func (c *Columns) Add(name string) {
-	if c.keys[name] == "" {
-		c.Names = append(c.Names, name)
-		c.SymbolizedNames = append(c.SymbolizedNames, fmt.Sprintf(":%s", name))
-		c.keys[name] = name
+func (c *Columns) Add(names ...string) {
+	for _, name := range names {
+		if c.keys[name] == "" {
+			c.Names = append(c.Names, name)
+			c.SymbolizedNames = append(c.SymbolizedNames, fmt.Sprintf(":%s", name))
+			c.keys[name] = name
+		}
 	}
 }
 
