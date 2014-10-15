@@ -1,6 +1,10 @@
 package validate
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/markbates/going/wait"
+)
 
 // ValidationErrors holds onto all of the error messages
 // that get generated during the validation process.
@@ -65,15 +69,10 @@ func (v *ValidationErrors) Get(key string) []string {
 func Validate(validators ...Validator) *ValidationErrors {
 	errors := NewValidationErrors()
 
-	var w sync.WaitGroup
-	w.Add(len(validators))
-	for _, validator := range validators {
-		go func(wg *sync.WaitGroup, validator Validator) {
-			defer wg.Done()
-			validator.IsValid(errors)
-		}(&w, validator)
-	}
-	w.Wait()
+	wait.Wait(len(validators), func(index int) {
+		validator := validators[index]
+		validator.IsValid(errors)
+	})
 
 	return errors
 }

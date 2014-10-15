@@ -20,7 +20,10 @@ func (v *v2) IsValid(errors *ValidationErrors) {
 }
 
 func TestValidate(t *testing.T) {
+	t.Parallel()
+
 	assert := assert.New(t)
+
 	errors := Validate(&v1{}, &v2{})
 	assert.Equal(errors.Count(), 2)
 	assert.Equal(errors.HasAny(), true)

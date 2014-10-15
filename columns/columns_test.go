@@ -15,6 +15,7 @@ type foo struct {
 }
 
 func Test_ColumnsForStruct(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 
 	f := foo{}
@@ -41,6 +42,7 @@ func Test_ColumnsForStruct(t *testing.T) {
 }
 
 func Test_Columns_Add_Duplicates(t *testing.T) {
+	t.Parallel()
 	a := assert.New(t)
 
 	columns := NewColumns()
@@ -53,6 +55,7 @@ func Test_Columns_Add_Duplicates(t *testing.T) {
 }
 
 func Test_ColumnsForStruct_WithPointer(t *testing.T) {
+	t.Parallel()
 	assert := assert.New(t)
 	f := &foo{}
 

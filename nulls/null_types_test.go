@@ -43,6 +43,8 @@ func newValidFoo() Foo {
 }
 
 func TestNullTypesMarshalProperly(t *testing.T) {
+	t.Parallel()
+
 	assert := assert.New(t)
 	f := newValidFoo()
 
@@ -90,6 +92,8 @@ func initDB(f func(db *sqlx.DB)) {
 	os.Remove("./foo.db")
 }
 func TestNullTypeSaveAndRetrieveProperly(t *testing.T) {
+	t.Parallel()
+
 	assert := assert.New(t)
 	initDB(func(db *sqlx.DB) {
 		tx, err := db.Beginx()

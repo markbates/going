@@ -11,6 +11,7 @@ type Columns struct {
 	Names           []string
 	SymbolizedNames []string
 	keys            map[string]string
+	lock            *sync.RWMutex
 }
 
 // NamesString is a comma separated list of the column names.
@@ -36,6 +37,7 @@ func (c *Columns) UpdatesString() string {
 
 // Add a column to the list.
 func (c *Columns) Add(names ...string) {
+	c.lock.Lock()
 	for _, name := range names {
 		if c.keys[name] == "" {
 			c.Names = append(c.Names, name)
@@ -43,6 +45,7 @@ func (c *Columns) Add(names ...string) {
 			c.keys[name] = name
 		}
 	}
+	c.lock.Unlock()
 }
 
 // Remove a column from the list.
@@ -69,7 +72,7 @@ func (c *Columns) Remove(names ...string) {
 }
 
 func NewColumns() Columns {
-	return Columns{keys: map[string]string{}}
+	return Columns{keys: map[string]string{}, lock: &sync.RWMutex{}}
 }
 
 // ColumnsForStruct returns a Columns instance for
@@ -82,24 +85,16 @@ func ColumnsForStruct(s interface{}) Columns {
 	}
 	field_count := st.NumField()
 
-	var w sync.WaitGroup
-	w.Add(field_count)
-
 	for i := 0; i < field_count; i++ {
 		field := st.Field(i)
-		go func(field reflect.StructField, columns *Columns, w *sync.WaitGroup) {
-
-			defer w.Done()
-			tag := field.Tag.Get("db")
-			if tag == "" {
-				tag = field.Name
-			}
-			if tag != "-" {
-				columns.Add(tag)
-			}
-		}(field, &columns, &w)
+		tag := field.Tag.Get("db")
+		if tag == "" {
+			tag = field.Name
+		}
+		if tag != "-" {
+			columns.Add(tag)
+		}
 	}
 
-	w.Wait()
 	return columns
 }
