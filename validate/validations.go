@@ -1,6 +1,7 @@
 package validate
 
 import (
+	"encoding/json"
 	"sync"
 
 	"github.com/markbates/going/wait"
@@ -61,6 +62,11 @@ func (v *ValidationErrors) Add(key string, msg string) {
 // Get returns an array of error messages for the given key.
 func (v *ValidationErrors) Get(key string) []string {
 	return v.Errors[key]
+}
+
+func (v *ValidationErrors) String() string {
+	b, _ := json.Marshal(v)
+	return string(b)
 }
 
 // Validate takes in n number of Validator objects and will run

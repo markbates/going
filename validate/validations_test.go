@@ -29,4 +29,6 @@ func TestValidate(t *testing.T) {
 	assert.Equal(errors.HasAny(), true)
 	assert.Equal(errors.Errors["v1"], []string{"there's an error with v1"})
 	assert.Equal(errors.Errors["v2"], []string{"there's an error with v2"})
+
+	assert.Equal(errors.String(), `{"errors":{"v1":["there's an error with v1"],"v2":["there's an error with v2"]}}`)
 }
