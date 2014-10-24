@@ -15,11 +15,12 @@ import (
 )
 
 type Foo struct {
-	ID    NullInt64   `json:"id" db:"id"`
-	Name  NullString  `json:"name" db:"name"`
-	Alive NullBool    `json:"alive" db:"alive"`
-	Price NullFloat64 `json:"price" db:"price"`
-	Birth NullTime    `json:"birth" db:"birth"`
+	ID      NullInt64   `json:"id" db:"id"`
+	Name    NullString  `json:"name" db:"name"`
+	Alive   NullBool    `json:"alive" db:"alive"`
+	Price   NullFloat64 `json:"price" db:"price"`
+	Birth   NullTime    `json:"birth" db:"birth"`
+	Price32 NullFloat32 `json:"price32" db:"price32"`
 }
 
 const schema = `CREATE TABLE "main"."foos" (
@@ -27,18 +28,20 @@ const schema = `CREATE TABLE "main"."foos" (
 	 "name" text,
 	 "alive" integer,
 	 "price" float,
-	 "birth" timestamp
+	 "birth" timestamp,
+	 "price32" float
 );`
 
 var now = time.Now()
 
 func newValidFoo() Foo {
 	return Foo{
-		ID:    NewNullInt64(1),
-		Name:  NewNullString("Mark"),
-		Alive: NewNullBool(true),
-		Price: NewNullFloat64(9.99),
-		Birth: NewNullTime(now),
+		ID:      NewNullInt64(1),
+		Name:    NewNullString("Mark"),
+		Alive:   NewNullBool(true),
+		Price:   NewNullFloat64(9.99),
+		Birth:   NewNullTime(now),
+		Price32: NewNullFloat32(3.33),
 	}
 }
 
@@ -49,7 +52,7 @@ func TestNullTypesMarshalProperly(t *testing.T) {
 	f := newValidFoo()
 
 	ti, _ := json.Marshal(now)
-	jsonString := fmt.Sprintf(`{"id":1,"name":"Mark","alive":true,"price":9.99,"birth":%s}`, ti)
+	jsonString := fmt.Sprintf(`{"id":1,"name":"Mark","alive":true,"price":9.99,"birth":%s,"price32":3.33}`, ti)
 
 	// check marshalling to json works:
 	data, _ := json.Marshal(f)
@@ -63,10 +66,12 @@ func TestNullTypesMarshalProperly(t *testing.T) {
 	assert.Equal(f.Alive.Bool, true)
 	assert.Equal(f.Price.Float64, 9.99)
 	assert.Equal(f.Birth.Time, now)
+	assert.Equal(f.Price32.Float32, 3.33)
 
 	// check marshalling nulls works:
 	f = Foo{}
-	jsonString = `{"id":null,"name":null,"alive":false,"price":null,"birth":null}`
+	jsonString = `{"id":null,"name":null,"alive":false,"price":null,"birth":null,"price32":null}`
+	//jsonString = `{"id":null,"name":null,"alive":false,"price":null,"birth":null}`
 	data, _ = json.Marshal(f)
 	assert.Equal(string(data), jsonString)
 
@@ -82,6 +87,8 @@ func TestNullTypesMarshalProperly(t *testing.T) {
 	assert.False(f.Price.Valid)
 	assert.Equal(f.Birth.Time, time.Time{})
 	assert.False(f.Birth.Valid)
+	assert.Equal(f.Price32.Float32, 0)
+	assert.False(f.Price32.Valid)
 }
 
 func initDB(f func(db *sqlx.DB)) {
@@ -101,37 +108,40 @@ func TestNullTypeSaveAndRetrieveProperly(t *testing.T) {
 		tx.Exec("insert into foos")
 
 		f := Foo{}
-		tx.Get(f, "select * from foos")
+		tx.Get(&f, "select * from foos")
 		assert.False(f.Alive.Valid)
 		assert.False(f.Birth.Valid)
 		assert.False(f.ID.Valid)
 		assert.False(f.Name.Valid)
 		assert.False(f.Price.Valid)
 		assert.False(f.Alive.Bool)
+		assert.False(f.Price32.Valid)
 		assert.Equal(f.Birth.Time.UnixNano(), time.Time{}.UnixNano())
 		assert.Equal(f.ID.Int64, 0)
 		assert.Equal(f.Name.String, "")
 		assert.Equal(f.Price.Float64, 0)
+		assert.Equal(f.Price32.Float32, 0)
 		tx.Rollback()
 
 		tx, err = db.Beginx()
 		assert.NoError(err)
 
 		f = newValidFoo()
-		tx.NamedExec("INSERT INTO foos (id, name, alive, price, birth) VALUES (:id, :name, :alive, :price, :birth)", &f)
+		tx.NamedExec("INSERT INTO foos (id, name, alive, price, birth, price32) VALUES (:id, :name, :alive, :price, :birth, :price32)", &f)
 		f = Foo{}
 		tx.Get(&f, "select * from foos")
-		fmt.Println(f)
 		assert.True(f.Alive.Valid)
 		assert.True(f.Birth.Valid)
 		assert.True(f.ID.Valid)
 		assert.True(f.Name.Valid)
 		assert.True(f.Price.Valid)
 		assert.True(f.Alive.Bool)
+		assert.True(f.Price32.Valid)
 		assert.Equal(f.Birth.Time.UnixNano(), now.UnixNano())
 		assert.Equal(f.ID.Int64, 1)
 		assert.Equal(f.Name.String, "Mark")
 		assert.Equal(f.Price.Float64, 9.99)
+		assert.Equal(f.Price32.Float32, 3.33)
 
 		tx.Rollback()
 	})
