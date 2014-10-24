@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/isted/going/nulls"
 	"github.com/jmoiron/sqlx"
+	. "github.com/markbates/going/nulls"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
 )
@@ -130,7 +130,6 @@ func TestNullTypeSaveAndRetrieveProperly(t *testing.T) {
 		tx.NamedExec("INSERT INTO foos (id, name, alive, price, birth, price32) VALUES (:id, :name, :alive, :price, :birth, :price32)", &f)
 		f = Foo{}
 		tx.Get(&f, "select * from foos")
-		fmt.Println(f)
 		assert.True(f.Alive.Valid)
 		assert.True(f.Birth.Valid)
 		assert.True(f.ID.Valid)
