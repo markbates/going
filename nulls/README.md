@@ -16,12 +16,13 @@ $ go get github.com/markbates/going/nulls
 * `int64` (`nulls.NullInt64`) - Replaces `sql.NullInt64`
 * `float64` (`nulls.NullFloat64`) - Replaces `sql.NullFloat64`
 * `bool` (`nulls.NullBool`) - Replaces `sql.NullBool`
-
-Additionally this package provides the following extra data types:
-
-* `time.Time` (`nulls.NullTime`)
 * `[]byte` (`nulls.NullByteSlice`)
 * `float32` (`nulls.NullFloat32`)
 * `int` (`nulls.NullInt`)
 * `int32` (`nulls.NullInt32`)
 * `uint32` (`nulls.NullUInt32`)
+
+Additionally this package provides the following extra data types:
+
+* `time.Time` (`nulls.NullTime`)
+
