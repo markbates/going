@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-// NullFloat32 replaces sql.NullFloat32 with an implementation
+// NullFloat32 adds an implementation for float32
 // that supports proper JSON encoding/decoding.
 type NullFloat32 struct {
 	Float32 float32
@@ -26,12 +26,6 @@ func (ns *NullFloat32) Scan(value interface{}) error {
 	err := n.Scan(value)
 	ns.Float32, ns.Valid = float32(n.Float64), n.Valid
 	return err
-	//if value == nil {
-	//	ns.Float32, ns.Valid = 0, false
-	//	return nil
-	//}
-	//n.Valid = true
-	//return sql.convertAssign(&ns.Float32, value)
 }
 
 // Value implements the driver Valuer interface.
