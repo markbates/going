@@ -20,3 +20,8 @@ $ go get github.com/markbates/going/nulls
 Additionally this package provides the following extra data types:
 
 * `time.Time` (`nulls.NullTime`)
+* `[]byte` (`nulls.NullByteSlice`)
+* `float32` (`nulls.NullFloat32`)
+* `int` (`nulls.NullInt`)
+* `int32` (`nulls.NullInt32`)
+* `uint32` (`nulls.NullUInt32`)
