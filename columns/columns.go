@@ -3,46 +3,32 @@ package columns
 import (
 	"fmt"
 	"reflect"
+	"sort"
 	"strings"
 	"sync"
 )
-
-type Columns struct {
-	Names           []string
-	SymbolizedNames []string
-	keys            map[string]string
-	lock            *sync.RWMutex
-}
-
-// NamesString is a comma separated list of the column names.
-func (c *Columns) NamesString() string {
-	return strings.Join(c.Names, ", ")
-}
-
-// SymbolizedNamesString returns a comma separated list of
-// the column names with a colon in front of each name.
-func (c *Columns) SymbolizedNamesString() string {
-	return strings.Join(c.SymbolizedNames, ", ")
-}
-
-// UpdatesString returns a comma separated list key = :value
-// pairs, used for building named `UPDATE` statements.
-func (c *Columns) UpdatesString() string {
-	sets := []string{}
-	for i := 0; i < len(c.Names); i++ {
-		sets = append(sets, fmt.Sprintf("%s = %s", c.Names[i], c.SymbolizedNames[i]))
-	}
-	return strings.Join(sets, ", ")
-}
 
 // Add a column to the list.
 func (c *Columns) Add(names ...string) {
 	c.lock.Lock()
 	for _, name := range names {
-		if c.keys[name] == "" {
-			c.Names = append(c.Names, name)
-			c.SymbolizedNames = append(c.SymbolizedNames, fmt.Sprintf(":%s", name))
-			c.keys[name] = name
+		xs := strings.Split(name, ",")
+		col := Column{}
+		col.Name = xs[0]
+		if c.Cols[col.Name].Name == "" {
+			col.Readable = true
+			col.Writeable = true
+
+			if len(xs) > 1 {
+				if xs[1] == "*readonly" {
+					col.Writeable = false
+				}
+				if xs[1] == "*writeonly" {
+					col.Readable = false
+				}
+			}
+
+			c.Cols[col.Name] = col
 		}
 	}
 	c.lock.Unlock()
@@ -50,29 +36,88 @@ func (c *Columns) Add(names ...string) {
 
 // Remove a column from the list.
 func (c *Columns) Remove(names ...string) {
-	tmp := []string{}
-	for _, name := range c.Names {
-		delete(c.keys, name)
-		found := false
-		for _, n := range names {
-			if n == name {
-				found = true
-				break
-			}
-		}
-		if !found {
-			tmp = append(tmp, name)
-		}
-	}
-	c.Names = []string{}
-	c.SymbolizedNames = []string{}
-	for _, n := range tmp {
-		c.Add(n)
+	for _, name := range names {
+		xs := strings.Split(name, ",")
+		name = xs[0]
+		delete(c.Cols, name)
 	}
 }
 
+type Column struct {
+	Name      string
+	Writeable bool
+	Readable  bool
+}
+
+func (c Column) UpdateString() string {
+	return fmt.Sprintf("%s = :%s", c.Name, c.Name)
+}
+
+type WriteableColumns struct {
+	Columns
+}
+
+func (c WriteableColumns) UpdateString() string {
+	xs := []string{}
+	for _, t := range c.Cols {
+		xs = append(xs, t.UpdateString())
+	}
+	sort.Strings(xs)
+	return strings.Join(xs, ", ")
+}
+
+type ReadableColumns struct {
+	Columns
+}
+
+type Columns struct {
+	Cols map[string]Column
+	lock *sync.RWMutex
+}
+
+func (c Columns) Writeable() *WriteableColumns {
+	w := &WriteableColumns{NewColumns()}
+	for _, col := range c.Cols {
+		if col.Writeable {
+			w.Cols[col.Name] = col
+		}
+	}
+	return w
+}
+
+func (c Columns) Readable() *ReadableColumns {
+	w := &ReadableColumns{NewColumns()}
+	for _, col := range c.Cols {
+		if col.Readable {
+			w.Cols[col.Name] = col
+		}
+	}
+	return w
+}
+
+func (c Columns) String() string {
+	xs := []string{}
+	for _, t := range c.Cols {
+		xs = append(xs, t.Name)
+	}
+	sort.Strings(xs)
+	return strings.Join(xs, ", ")
+}
+
+func (c Columns) SymbolizedString() string {
+	xs := []string{}
+	for _, t := range c.Cols {
+		xs = append(xs, ":"+t.Name)
+	}
+	sort.Strings(xs)
+	return strings.Join(xs, ", ")
+}
+
 func NewColumns() Columns {
-	return Columns{keys: map[string]string{}, lock: &sync.RWMutex{}}
+	return Columns{
+		lock: &sync.RWMutex{},
+		Cols: map[string]Column{},
+	}
 }
 
 // ColumnsForStruct returns a Columns instance for
@@ -91,6 +136,7 @@ func ColumnsForStruct(s interface{}) Columns {
 		if tag == "" {
 			tag = field.Name
 		}
+
 		if tag != "-" {
 			columns.Add(tag)
 		}
