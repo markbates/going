@@ -11,8 +11,8 @@ type foo struct {
 	FirstName string `db:"first_name" select:"first_name as f"`
 	LastName  string
 	Unwanted  string `db:"-"`
-	ReadOnly  string `db:"read,*readonly"`
-	WriteOnly string `db:"write,*writeonly"`
+	ReadOnly  string `db:"read" rw:"r"`
+	WriteOnly string `db:"write" rw:"w"`
 }
 
 func Test_Column_UpdateString(t *testing.T) {

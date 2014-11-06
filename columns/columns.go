@@ -2,7 +2,6 @@ package columns
 
 import (
 	"fmt"
-	"log"
 	"reflect"
 	"sort"
 	"strings"
@@ -25,10 +24,10 @@ func (c *Columns) Add(names ...string) []*Column {
 			}
 
 			if len(xs) > 1 {
-				if xs[1] == "*readonly" {
+				if xs[1] == "r" {
 					col.Writeable = false
 				}
-				if xs[1] == "*writeonly" {
+				if xs[1] == "w" {
 					col.Readable = false
 				}
 			}
@@ -139,8 +138,14 @@ func NewColumns() Columns {
 
 // ColumnsForStruct returns a Columns instance for
 // the struct passed in.
-func ColumnsForStruct(s interface{}) Columns {
-	columns := NewColumns()
+func ColumnsForStruct(s interface{}) (columns Columns) {
+	columns = NewColumns()
+	defer func() {
+		if r := recover(); r != nil {
+			columns = NewColumns()
+			columns.Add("*")
+		}
+	}()
 	st := reflect.TypeOf(s)
 	if st.Kind().String() == "ptr" {
 		st = reflect.ValueOf(s).Elem().Type()
@@ -155,11 +160,14 @@ func ColumnsForStruct(s interface{}) Columns {
 		}
 
 		if tag != "-" {
+			rw := field.Tag.Get("rw")
+			if rw != "" {
+				tag = tag + "," + rw
+			}
 			cs := columns.Add(tag)
 			c := cs[0]
 			tag = field.Tag.Get("select")
 			if tag != "" {
-				log.Printf("tag: %s\n", tag)
 				c.SelectSQL = tag
 			}
 		}
