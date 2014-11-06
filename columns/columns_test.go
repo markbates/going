@@ -8,7 +8,7 @@ import (
 )
 
 type foo struct {
-	FirstName string `db:"first_name"`
+	FirstName string `db:"first_name" select:"first_name as f"`
 	LastName  string
 	Unwanted  string `db:"-"`
 	ReadOnly  string `db:"read,*readonly"`
@@ -48,6 +48,15 @@ func Test_Columns_ReadableString(t *testing.T) {
 	}
 }
 
+func Test_Columns_Readable_SelectString(t *testing.T) {
+	a := assert.New(t)
+	for _, f := range []interface{}{foo{}, &foo{}} {
+		c := ColumnsForStruct(f)
+		u := c.Readable().SelectString()
+		a.Equal(u, "LastName, first_name as f, read")
+	}
+}
+
 func Test_Columns_WriteableString_Symbolized(t *testing.T) {
 	a := assert.New(t)
 	for _, f := range []interface{}{foo{}, &foo{}} {
@@ -71,10 +80,10 @@ func Test_Columns_Basics(t *testing.T) {
 	for _, f := range []interface{}{foo{}, &foo{}} {
 		c := ColumnsForStruct(f)
 		a.Equal(len(c.Cols), 4)
-		a.Equal(c.Cols["first_name"], Column{Name: "first_name", Writeable: true, Readable: true})
-		a.Equal(c.Cols["LastName"], Column{Name: "LastName", Writeable: true, Readable: true})
-		a.Equal(c.Cols["read"], Column{Name: "read", Writeable: false, Readable: true})
-		a.Equal(c.Cols["write"], Column{Name: "write", Writeable: true, Readable: false})
+		a.Equal(c.Cols["first_name"], &Column{Name: "first_name", Writeable: true, Readable: true, SelectSQL: "first_name as f"})
+		a.Equal(c.Cols["LastName"], &Column{Name: "LastName", Writeable: true, Readable: true, SelectSQL: "LastName"})
+		a.Equal(c.Cols["read"], &Column{Name: "read", Writeable: false, Readable: true, SelectSQL: "read"})
+		a.Equal(c.Cols["write"], &Column{Name: "write", Writeable: true, Readable: false, SelectSQL: "write"})
 	}
 }
 
@@ -86,7 +95,7 @@ func Test_Columns_Add(t *testing.T) {
 		a.Equal(len(c.Cols), 4)
 		c.Add("foo", "first_name")
 		a.Equal(len(c.Cols), 5)
-		a.Equal(c.Cols["foo"], Column{Name: "foo", Writeable: true, Readable: true})
+		a.Equal(c.Cols["foo"], &Column{Name: "foo", Writeable: true, Readable: true, SelectSQL: "foo"})
 	}
 }
 

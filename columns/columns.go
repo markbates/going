@@ -2,6 +2,7 @@ package columns
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"sort"
 	"strings"
@@ -9,15 +10,19 @@ import (
 )
 
 // Add a column to the list.
-func (c *Columns) Add(names ...string) {
+func (c *Columns) Add(names ...string) []*Column {
+	ret := []*Column{}
 	c.lock.Lock()
 	for _, name := range names {
 		xs := strings.Split(name, ",")
-		col := Column{}
-		col.Name = xs[0]
-		if c.Cols[col.Name].Name == "" {
-			col.Readable = true
-			col.Writeable = true
+		col := c.Cols[xs[0]]
+		if col == nil {
+			col = &Column{
+				Name:      xs[0],
+				SelectSQL: xs[0],
+				Readable:  true,
+				Writeable: true,
+			}
 
 			if len(xs) > 1 {
 				if xs[1] == "*readonly" {
@@ -30,8 +35,10 @@ func (c *Columns) Add(names ...string) {
 
 			c.Cols[col.Name] = col
 		}
+		ret = append(ret, col)
 	}
 	c.lock.Unlock()
+	return ret
 }
 
 // Remove a column from the list.
@@ -47,6 +54,7 @@ type Column struct {
 	Name      string
 	Writeable bool
 	Readable  bool
+	SelectSQL string
 }
 
 func (c Column) UpdateString() string {
@@ -70,8 +78,17 @@ type ReadableColumns struct {
 	Columns
 }
 
+func (c ReadableColumns) SelectString() string {
+	xs := []string{}
+	for _, t := range c.Cols {
+		xs = append(xs, t.SelectSQL)
+	}
+	sort.Strings(xs)
+	return strings.Join(xs, ", ")
+}
+
 type Columns struct {
-	Cols map[string]Column
+	Cols map[string]*Column
 	lock *sync.RWMutex
 }
 
@@ -116,7 +133,7 @@ func (c Columns) SymbolizedString() string {
 func NewColumns() Columns {
 	return Columns{
 		lock: &sync.RWMutex{},
-		Cols: map[string]Column{},
+		Cols: map[string]*Column{},
 	}
 }
 
@@ -138,7 +155,13 @@ func ColumnsForStruct(s interface{}) Columns {
 		}
 
 		if tag != "-" {
-			columns.Add(tag)
+			cs := columns.Add(tag)
+			c := cs[0]
+			tag = field.Tag.Get("select")
+			if tag != "" {
+				log.Printf("tag: %s\n", tag)
+				c.SelectSQL = tag
+			}
 		}
 	}
 
