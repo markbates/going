@@ -7,9 +7,9 @@ import (
 	"github.com/markbates/going/wait"
 )
 
-// ValidationErrors holds onto all of the error messages
+// Errors holds onto all of the error messages
 // that get generated during the validation process.
-type ValidationErrors struct {
+type Errors struct {
 	Errors map[string][]string `json:"errors"`
 	Lock   *sync.RWMutex       `json:"-"`
 }
@@ -17,32 +17,32 @@ type ValidationErrors struct {
 // Validator must be implemented in order to pass the
 // validator object into the Validate function.
 type Validator interface {
-	IsValid(errors *ValidationErrors)
+	IsValid(errors *Errors)
 }
 
-// NewValidationErrors returns a pointer to a ValidationErrors
+// NewErrors returns a pointer to a Errors
 // object that has been primed and ready to go.
-func NewValidationErrors() *ValidationErrors {
-	return &ValidationErrors{
+func NewErrors() *Errors {
+	return &Errors{
 		Errors: make(map[string][]string),
 		Lock:   new(sync.RWMutex),
 	}
 }
 
 // Count returns the number of errors.
-func (v *ValidationErrors) Count() int {
+func (v *Errors) Count() int {
 	return len(v.Errors)
 }
 
 // HasAny returns true/false depending on whether any errors
 // have been tracked.
-func (v *ValidationErrors) HasAny() bool {
+func (v *Errors) HasAny() bool {
 	return v.Count() > 0
 }
 
-// Append concatenates two ValidationErrors objects together.
+// Append concatenates two Errors objects together.
 // This will modify the first object in place.
-func (v *ValidationErrors) Append(ers *ValidationErrors) {
+func (v *Errors) Append(ers *Errors) {
 	for key, value := range ers.Errors {
 		for _, msg := range value {
 			v.Add(key, msg)
@@ -53,27 +53,27 @@ func (v *ValidationErrors) Append(ers *ValidationErrors) {
 // Add will add a new message to the list of errors using
 // the given key. If the key already exists the message will
 // be appended to the array of the existing messages.
-func (v *ValidationErrors) Add(key string, msg string) {
+func (v *Errors) Add(key string, msg string) {
 	v.Lock.Lock()
 	v.Errors[key] = append(v.Errors[key], msg)
 	v.Lock.Unlock()
 }
 
 // Get returns an array of error messages for the given key.
-func (v *ValidationErrors) Get(key string) []string {
+func (v *Errors) Get(key string) []string {
 	return v.Errors[key]
 }
 
-func (v *ValidationErrors) String() string {
+func (v *Errors) String() string {
 	b, _ := json.Marshal(v)
 	return string(b)
 }
 
 // Validate takes in n number of Validator objects and will run
-// them and return back a point to a ValidationErrors object that
+// them and return back a point to a Errors object that
 // will contain any errors.
-func Validate(validators ...Validator) *ValidationErrors {
-	errors := NewValidationErrors()
+func Validate(validators ...Validator) *Errors {
+	errors := NewErrors()
 
 	wait.Wait(len(validators), func(index int) {
 		validator := validators[index]

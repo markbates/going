@@ -9,13 +9,13 @@ import (
 
 type v1 struct{}
 
-func (v *v1) IsValid(errors *ValidationErrors) {
+func (v *v1) IsValid(errors *Errors) {
 	errors.Add("v1", "there's an error with v1")
 }
 
 type v2 struct{}
 
-func (v *v2) IsValid(errors *ValidationErrors) {
+func (v *v2) IsValid(errors *Errors) {
 	errors.Add("v2", "there's an error with v2")
 }
 
