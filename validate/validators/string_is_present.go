@@ -1,0 +1,18 @@
+package validators
+
+import (
+	"fmt"
+
+	"github.com/markbates/going/validate"
+)
+
+type StringIsPresent struct {
+	Name  string
+	Field string
+}
+
+func (v *StringIsPresent) IsValid(errors *validate.Errors) {
+	if v.Field == "" {
+		errors.Add(generateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+	}
+}
