@@ -82,7 +82,7 @@ func TestNullTypesMarshalProperly(t *testing.T) {
 	assert.Equal(f.Bytes.ByteSlice, ba)
 	assert.Equal(f.IntType.Int, 2)
 	assert.Equal(f.Int32Type.Int32, 3)
-	assert.Equal(f.UInt32Type.UInt32, 5)
+	assert.Equal(f.UInt32Type.UInt32, uint32(5))
 
 	// check marshalling nulls works:
 	f = Foo{}
@@ -110,7 +110,7 @@ func TestNullTypesMarshalProperly(t *testing.T) {
 	assert.False(f.IntType.Valid)
 	assert.Equal(f.Int32Type.Int32, 0)
 	assert.False(f.Int32Type.Valid)
-	assert.Equal(f.UInt32Type.UInt32, 0)
+	assert.Equal(f.UInt32Type.UInt32, uint32(0))
 	assert.False(f.UInt32Type.Valid)
 }
 
@@ -151,7 +151,7 @@ func TestNullTypeSaveAndRetrieveProperly(t *testing.T) {
 		assert.Equal(f.Bytes.ByteSlice, []byte(nil))
 		assert.Equal(f.IntType.Int, 0)
 		assert.Equal(f.Int32Type.Int32, 0)
-		assert.Equal(f.UInt32Type.UInt32, 0)
+		assert.Equal(f.UInt32Type.UInt32, uint32(0))
 		tx.Rollback()
 
 		tx, err = db.Beginx()
@@ -180,7 +180,7 @@ func TestNullTypeSaveAndRetrieveProperly(t *testing.T) {
 		assert.Equal(f.Bytes.ByteSlice, []byte("Byte Slice"))
 		assert.Equal(f.IntType.Int, 2)
 		assert.Equal(f.Int32Type.Int32, 3)
-		assert.Equal(f.UInt32Type.UInt32, 5)
+		assert.Equal(f.UInt32Type.UInt32, uint32(5))
 
 		tx.Rollback()
 	})
