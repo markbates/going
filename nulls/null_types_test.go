@@ -86,7 +86,7 @@ func TestNullTypesMarshalProperly(t *testing.T) {
 
 	// check marshalling nulls works:
 	f = Foo{}
-	jsonString = `{"id":null,"name":null,"alive":false,"price":null,"birth":null,"price32":null,"bytes":null,"intType":null,"int32Type":null,"uint32Type":null}`
+	jsonString = `{"id":null,"name":null,"alive":null,"price":null,"birth":null,"price32":null,"bytes":null,"intType":null,"int32Type":null,"uint32Type":null}`
 	data, _ = json.Marshal(f)
 	assert.Equal(string(data), jsonString)
 
@@ -96,8 +96,8 @@ func TestNullTypesMarshalProperly(t *testing.T) {
 	assert.False(f.ID.Valid)
 	assert.Equal(f.Name.String, "")
 	assert.False(f.Name.Valid)
-	assert.False(f.Alive.Bool)
-	assert.True(f.Alive.Valid)
+	assert.Equal(f.Alive.Bool, false)
+	assert.False(f.Alive.Valid)
 	assert.Equal(f.Price.Float64, 0)
 	assert.False(f.Price.Valid)
 	assert.Equal(f.Birth.Time, time.Time{})
