@@ -8,7 +8,10 @@ import (
 
 // NullBool replaces sql.NullBool with an implementation
 // that supports proper JSON encoding/decoding.
-type NullBool sql.NullBool
+type NullBool struct {
+	Bool  bool
+	Valid bool
+}
 
 // NewNullBool returns a new, properly instantiated
 // NullBoll object.
@@ -35,20 +38,30 @@ func (ns NullBool) Value() (driver.Value, error) {
 // MarshalJSON marshals the underlying value to a
 // proper JSON representation.
 func (ns NullBool) MarshalJSON() ([]byte, error) {
-	return json.Marshal(ns.Bool)
+	if ns.Valid {
+		return json.Marshal(ns.Bool)
+	}
+	return json.Marshal(nil)
 }
 
 // UnmarshalJSON will unmarshal a JSON value into
-// the propert representation of that value. The strings
-// "true" and "t" will be considered "true", all other
-// values will be considered "false".
+// the proper representation of that value. The strings
+// "true" and "t" will be considered "true", "false" and "f" will
+// be treated as "false". All other values will
+//be set to null by Valid = false
 func (ns *NullBool) UnmarshalJSON(text []byte) error {
 	t := string(text)
-	ns.Valid = true
-	ns.Bool = false
 	if t == "true" || t == "t" {
+		ns.Valid = true
 		ns.Bool = true
 		return nil
 	}
+	if t == "false" || t == "f" {
+		ns.Valid = true
+		ns.Bool = false
+		return nil
+	}
+	ns.Bool = false
+	ns.Valid = false
 	return nil
 }
