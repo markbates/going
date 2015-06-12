@@ -5,7 +5,7 @@ Wait cleans up the pattern around using `sync.WaitGroup`.
 ## Installation
 
 ```bash
-$ go get https://github.com/markbates/wait
+$ go get https://github.com/markbates/going/wait
 ```
 
 ## Usage

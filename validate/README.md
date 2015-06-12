@@ -5,7 +5,7 @@ This package provides a framework for writing validations for Go applications. I
 ## Installation
 
 ```bash
-$ go get https://github.com/markbates/validate
+$ go get https://github.com/markbates/going/validate
 ```
 
 ## Usage
