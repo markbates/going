@@ -2,6 +2,7 @@ package chalk_test
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -13,34 +14,36 @@ import (
 func Test_New(t *testing.T) {
 	a := require.New(t)
 
-	tasks, _ := chalk.New(10)
+	c := chalk.New(10)
 
 	y := 0
 	m := sync.Mutex{}
 
 	for i := 0; i < 10; i++ {
-		tasks <- func() error {
+		c.Tasks <- func() error {
 			m.Lock()
 			y++
+			fmt.Printf("y: %d\n", y)
 			m.Unlock()
 			return nil
 		}
 	}
 
-	// give the works a second to run
-	time.Sleep(10 * time.Millisecond)
+	for y < 10 {
+		time.Sleep(1 * time.Millisecond)
+	}
 	a.Equal(10, y)
 }
 
 func Test_Errors(t *testing.T) {
 	a := require.New(t)
 
-	tasks, errs := chalk.New(10)
+	c := chalk.New(10)
 
-	tasks <- func() error {
+	c.Tasks <- func() error {
 		return errors.New("boom!")
 	}
 
-	err := <-errs
+	err := <-c.Errors
 	a.Error(err)
 }

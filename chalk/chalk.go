@@ -6,29 +6,37 @@ import "sync"
 // will be sent to the pool of go routines
 type Handler func() error
 
+type Chalk struct {
+	*sync.WaitGroup
+	Tasks  chan Handler
+	Errors chan error
+}
+
 // New creates a new pool N go routines. It will
 // return two channels. The first channel is used
 // to send `Handler` functions to the pool to be
 // executed. The second channel can be used to
 // listen for any errors that may occur during the
 // processing of a `Handler`.
-func New(size int) (chan Handler, chan error) {
-	tasks := make(chan Handler)
-	errors := make(chan error)
+func New(size int) *Chalk {
+	c := Chalk{
+		WaitGroup: &sync.WaitGroup{},
+		Tasks:     make(chan Handler),
+		Errors:    make(chan error),
+	}
 	go func() {
-		wg := sync.WaitGroup{}
 		for i := 0; i < size; i++ {
-			wg.Add(1)
+			c.Add(1)
 			go func() {
-				for f := range tasks {
+				for f := range c.Tasks {
 					err := f()
 					if err != nil {
-						errors <- err
+						c.Errors <- err
 					}
 				}
-				wg.Done()
+				c.Done()
 			}()
 		}
 	}()
-	return tasks, errors
+	return &c
 }
