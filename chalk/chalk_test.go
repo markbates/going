@@ -2,10 +2,8 @@ package chalk_test
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/markbates/going/chalk"
 	"github.com/stretchr/testify/require"
@@ -23,15 +21,12 @@ func Test_New(t *testing.T) {
 		c.Tasks <- func() error {
 			m.Lock()
 			y++
-			fmt.Printf("y: %d\n", y)
 			m.Unlock()
 			return nil
 		}
 	}
 
-	for y < 10 {
-		time.Sleep(1 * time.Millisecond)
-	}
+	c.Wait()
 	a.Equal(10, y)
 }
 
