@@ -7,21 +7,21 @@ import (
 	"encoding/json"
 )
 
-// NullByteSlice adds an implementation for []byte
+// ByteSlice adds an implementation for []byte
 // that supports proper JSON encoding/decoding.
-type NullByteSlice struct {
+type ByteSlice struct {
 	ByteSlice []byte
-	Valid     bool // Valid is true if NullByteSlice is not NULL
+	Valid     bool // Valid is true if ByteSlice is not NULL
 }
 
-// NewNullByteSlice returns a new, properly instantiated
-// NullByteSlice object.
-func NewNullByteSlice(b []byte) NullByteSlice {
-	return NullByteSlice{ByteSlice: b, Valid: true}
+// NewByteSlice returns a new, properly instantiated
+// ByteSlice object.
+func NewByteSlice(b []byte) ByteSlice {
+	return ByteSlice{ByteSlice: b, Valid: true}
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullByteSlice) Scan(value interface{}) error {
+func (ns *ByteSlice) Scan(value interface{}) error {
 	n := sql.NullString{String: base64.StdEncoding.EncodeToString(ns.ByteSlice)}
 	err := n.Scan(value)
 	//ns.Float32, ns.Valid = float32(n.Float64), n.Valid
@@ -31,7 +31,7 @@ func (ns *NullByteSlice) Scan(value interface{}) error {
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullByteSlice) Value() (driver.Value, error) {
+func (ns ByteSlice) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
@@ -40,7 +40,7 @@ func (ns NullByteSlice) Value() (driver.Value, error) {
 
 // MarshalJSON marshals the underlying value to a
 // proper JSON representation.
-func (ns NullByteSlice) MarshalJSON() ([]byte, error) {
+func (ns ByteSlice) MarshalJSON() ([]byte, error) {
 	if ns.Valid {
 		return json.Marshal(ns.ByteSlice)
 	}
@@ -49,7 +49,7 @@ func (ns NullByteSlice) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON will unmarshal a JSON value into
 // the propert representation of that value.
-func (ns *NullByteSlice) UnmarshalJSON(text []byte) error {
+func (ns *ByteSlice) UnmarshalJSON(text []byte) error {
 	ns.Valid = false
 	if string(text) == "null" {
 		return nil

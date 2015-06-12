@@ -7,47 +7,47 @@ import (
 	"strconv"
 )
 
-// NullInt32 adds an implementation for int32
+// UInt32 adds an implementation for int
 // that supports proper JSON encoding/decoding.
-type NullInt32 struct {
-	Int32 int32
-	Valid bool // Valid is true if Int32 is not NULL
+type UInt32 struct {
+	UInt32 uint32
+	Valid  bool // Valid is true if Int is not NULL
 }
 
-// NewNullInt32 returns a new, properly instantiated
-// NullInt object.
-func NewNullInt32(i int32) NullInt32 {
-	return NullInt32{Int32: i, Valid: true}
+// NewUInt32 returns a new, properly instantiated
+// Int object.
+func NewUInt32(i uint32) UInt32 {
+	return UInt32{UInt32: i, Valid: true}
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullInt32) Scan(value interface{}) error {
-	n := sql.NullInt64{Int64: int64(ns.Int32)}
+func (ns *UInt32) Scan(value interface{}) error {
+	n := sql.NullInt64{Int64: int64(ns.UInt32)}
 	err := n.Scan(value)
-	ns.Int32, ns.Valid = int32(n.Int64), n.Valid
+	ns.UInt32, ns.Valid = uint32(n.Int64), n.Valid
 	return err
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullInt32) Value() (driver.Value, error) {
+func (ns UInt32) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return int64(ns.Int32), nil
+	return int64(ns.UInt32), nil
 }
 
 // MarshalJSON marshals the underlying value to a
 // proper JSON representation.
-func (ns NullInt32) MarshalJSON() ([]byte, error) {
+func (ns UInt32) MarshalJSON() ([]byte, error) {
 	if ns.Valid {
-		return json.Marshal(ns.Int32)
+		return json.Marshal(ns.UInt32)
 	}
 	return json.Marshal(nil)
 }
 
 // UnmarshalJSON will unmarshal a JSON value into
 // the propert representation of that value.
-func (ns *NullInt32) UnmarshalJSON(text []byte) error {
+func (ns *UInt32) UnmarshalJSON(text []byte) error {
 	txt := string(text)
 	ns.Valid = true
 	if txt == "null" {
@@ -59,7 +59,7 @@ func (ns *NullInt32) UnmarshalJSON(text []byte) error {
 		ns.Valid = false
 		return err
 	}
-	j := int32(i)
-	ns.Int32 = j
+	j := uint32(i)
+	ns.UInt32 = j
 	return nil
 }

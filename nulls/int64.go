@@ -7,18 +7,18 @@ import (
 	"strconv"
 )
 
-// NullInt64 replaces sql.NullInt64 with an implementation
+// Int64 replaces sql.Int64 with an implementation
 // that supports proper JSON encoding/decoding.
-type NullInt64 sql.NullInt64
+type Int64 sql.NullInt64
 
-// NewNullInt64 returns a new, properly instantiated
-// NullInt64 object.
-func NewNullInt64(i int64) NullInt64 {
-	return NullInt64{Int64: i, Valid: true}
+// NewInt64 returns a new, properly instantiated
+// Int64 object.
+func NewInt64(i int64) Int64 {
+	return Int64{Int64: i, Valid: true}
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullInt64) Scan(value interface{}) error {
+func (ns *Int64) Scan(value interface{}) error {
 	n := sql.NullInt64{Int64: ns.Int64}
 	err := n.Scan(value)
 	ns.Int64, ns.Valid = n.Int64, n.Valid
@@ -26,7 +26,7 @@ func (ns *NullInt64) Scan(value interface{}) error {
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullInt64) Value() (driver.Value, error) {
+func (ns Int64) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
@@ -35,7 +35,7 @@ func (ns NullInt64) Value() (driver.Value, error) {
 
 // MarshalJSON marshals the underlying value to a
 // proper JSON representation.
-func (ns NullInt64) MarshalJSON() ([]byte, error) {
+func (ns Int64) MarshalJSON() ([]byte, error) {
 	if ns.Valid {
 		return json.Marshal(ns.Int64)
 	}
@@ -44,7 +44,7 @@ func (ns NullInt64) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON will unmarshal a JSON value into
 // the propert representation of that value.
-func (ns *NullInt64) UnmarshalJSON(text []byte) error {
+func (ns *Int64) UnmarshalJSON(text []byte) error {
 	t := string(text)
 	ns.Valid = true
 	if t == "null" {

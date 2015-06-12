@@ -6,18 +6,18 @@ import (
 	"encoding/json"
 )
 
-// NullString replaces sql.NullString with an implementation
+// String replaces sql.NullString with an implementation
 // that supports proper JSON encoding/decoding.
-type NullString sql.NullString
+type String sql.NullString
 
-// NewNullString returns a new, properly instantiated
-// NullString object.
-func NewNullString(s string) NullString {
-	return NullString{String: s, Valid: true}
+// NewString returns a new, properly instantiated
+// String object.
+func NewString(s string) String {
+	return String{String: s, Valid: true}
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullString) Scan(value interface{}) error {
+func (ns *String) Scan(value interface{}) error {
 	n := sql.NullString{String: ns.String}
 	err := n.Scan(value)
 	ns.String, ns.Valid = n.String, n.Valid
@@ -25,7 +25,7 @@ func (ns *NullString) Scan(value interface{}) error {
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullString) Value() (driver.Value, error) {
+func (ns String) Value() (driver.Value, error) {
 	ns.Valid = ns.String != ""
 	if !ns.Valid {
 		return nil, nil
@@ -35,7 +35,7 @@ func (ns NullString) Value() (driver.Value, error) {
 
 // MarshalJSON marshals the underlying value to a
 // proper JSON representation.
-func (ns NullString) MarshalJSON() ([]byte, error) {
+func (ns String) MarshalJSON() ([]byte, error) {
 	if ns.Valid {
 		return json.Marshal(ns.String)
 	}
@@ -44,7 +44,7 @@ func (ns NullString) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON will unmarshal a JSON value into
 // the propert representation of that value.
-func (ns *NullString) UnmarshalJSON(text []byte) error {
+func (ns *String) UnmarshalJSON(text []byte) error {
 	ns.Valid = false
 	if string(text) == "null" {
 		return nil

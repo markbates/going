@@ -6,21 +6,21 @@ import (
 	"encoding/json"
 )
 
-// NullBool replaces sql.NullBool with an implementation
+// Bool replaces sql.NullBool with an implementation
 // that supports proper JSON encoding/decoding.
-type NullBool struct {
+type Bool struct {
 	Bool  bool
 	Valid bool
 }
 
-// NewNullBool returns a new, properly instantiated
-// NullBoll object.
-func NewNullBool(b bool) NullBool {
-	return NullBool{Bool: b, Valid: true}
+// NewBool returns a new, properly instantiated
+// Boll object.
+func NewBool(b bool) Bool {
+	return Bool{Bool: b, Valid: true}
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullBool) Scan(value interface{}) error {
+func (ns *Bool) Scan(value interface{}) error {
 	n := sql.NullBool{Bool: ns.Bool}
 	err := n.Scan(value)
 	ns.Bool, ns.Valid = n.Bool, n.Valid
@@ -28,7 +28,7 @@ func (ns *NullBool) Scan(value interface{}) error {
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullBool) Value() (driver.Value, error) {
+func (ns Bool) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
@@ -37,7 +37,7 @@ func (ns NullBool) Value() (driver.Value, error) {
 
 // MarshalJSON marshals the underlying value to a
 // proper JSON representation.
-func (ns NullBool) MarshalJSON() ([]byte, error) {
+func (ns Bool) MarshalJSON() ([]byte, error) {
 	if ns.Valid {
 		return json.Marshal(ns.Bool)
 	}
@@ -49,7 +49,7 @@ func (ns NullBool) MarshalJSON() ([]byte, error) {
 // "true" and "t" will be considered "true", "false" and "f" will
 // be treated as "false". All other values will
 //be set to null by Valid = false
-func (ns *NullBool) UnmarshalJSON(text []byte) error {
+func (ns *Bool) UnmarshalJSON(text []byte) error {
 	t := string(text)
 	if t == "true" || t == "t" {
 		ns.Valid = true

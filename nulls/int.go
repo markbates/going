@@ -7,21 +7,21 @@ import (
 	"strconv"
 )
 
-// NullInt adds an implementation for int
+// Int adds an implementation for int
 // that supports proper JSON encoding/decoding.
-type NullInt struct {
+type Int struct {
 	Int   int
 	Valid bool // Valid is true if Int is not NULL
 }
 
-// NewNullInt returns a new, properly instantiated
-// NullInt object.
-func NewNullInt(i int) NullInt {
-	return NullInt{Int: i, Valid: true}
+// NewInt returns a new, properly instantiated
+// Int object.
+func NewInt(i int) Int {
+	return Int{Int: i, Valid: true}
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullInt) Scan(value interface{}) error {
+func (ns *Int) Scan(value interface{}) error {
 	n := sql.NullInt64{Int64: int64(ns.Int)}
 	err := n.Scan(value)
 	ns.Int, ns.Valid = int(n.Int64), n.Valid
@@ -29,7 +29,7 @@ func (ns *NullInt) Scan(value interface{}) error {
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullInt) Value() (driver.Value, error) {
+func (ns Int) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
@@ -38,7 +38,7 @@ func (ns NullInt) Value() (driver.Value, error) {
 
 // MarshalJSON marshals the underlying value to a
 // proper JSON representation.
-func (ns NullInt) MarshalJSON() ([]byte, error) {
+func (ns Int) MarshalJSON() ([]byte, error) {
 	if ns.Valid {
 		return json.Marshal(ns.Int)
 	}
@@ -47,7 +47,7 @@ func (ns NullInt) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON will unmarshal a JSON value into
 // the propert representation of that value.
-func (ns *NullInt) UnmarshalJSON(text []byte) error {
+func (ns *Int) UnmarshalJSON(text []byte) error {
 	txt := string(text)
 	ns.Valid = true
 	if txt == "null" {

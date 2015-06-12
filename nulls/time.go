@@ -6,27 +6,27 @@ import (
 	"time"
 )
 
-// NullTime replaces sql.NullTime with an implementation
+// Time replaces sql.NullTime with an implementation
 // that supports proper JSON encoding/decoding.
-type NullTime struct {
+type Time struct {
 	Time  time.Time
 	Valid bool // Valid is true if Time is not NULL
 }
 
-// NewNullTime returns a new, properly instantiated
-// NullTime object.
-func NewNullTime(t time.Time) NullTime {
-	return NullTime{Time: t, Valid: true}
+// NewTime returns a new, properly instantiated
+// Time object.
+func NewTime(t time.Time) Time {
+	return Time{Time: t, Valid: true}
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullTime) Scan(value interface{}) error {
+func (ns *Time) Scan(value interface{}) error {
 	ns.Time, ns.Valid = value.(time.Time)
 	return nil
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullTime) Value() (driver.Value, error) {
+func (ns Time) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
@@ -35,7 +35,7 @@ func (ns NullTime) Value() (driver.Value, error) {
 
 // MarshalJSON marshals the underlying value to a
 // proper JSON representation.
-func (ns NullTime) MarshalJSON() ([]byte, error) {
+func (ns Time) MarshalJSON() ([]byte, error) {
 	if ns.Valid {
 		return json.Marshal(ns.Time)
 	}
@@ -44,7 +44,7 @@ func (ns NullTime) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON will unmarshal a JSON value into
 // the propert representation of that value.
-func (ns *NullTime) UnmarshalJSON(text []byte) error {
+func (ns *Time) UnmarshalJSON(text []byte) error {
 	ns.Valid = false
 	txt := string(text)
 	if txt == "null" || txt == "" {

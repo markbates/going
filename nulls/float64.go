@@ -7,18 +7,18 @@ import (
 	"strconv"
 )
 
-// NullFloat64 replaces sql.NullFloat64 with an implementation
+// Float64 replaces sql.NullFloat64 with an implementation
 // that supports proper JSON encoding/decoding.
-type NullFloat64 sql.NullFloat64
+type Float64 sql.NullFloat64
 
-// NewNullFloat64 returns a new, properly instantiated
-// NullFloat64 object.
-func NewNullFloat64(i float64) NullFloat64 {
-	return NullFloat64{Float64: i, Valid: true}
+// NewFloat64 returns a new, properly instantiated
+// Float64 object.
+func NewFloat64(i float64) Float64 {
+	return Float64{Float64: i, Valid: true}
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullFloat64) Scan(value interface{}) error {
+func (ns *Float64) Scan(value interface{}) error {
 	n := sql.NullFloat64{Float64: ns.Float64}
 	err := n.Scan(value)
 	ns.Float64, ns.Valid = n.Float64, n.Valid
@@ -26,7 +26,7 @@ func (ns *NullFloat64) Scan(value interface{}) error {
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullFloat64) Value() (driver.Value, error) {
+func (ns Float64) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
@@ -35,7 +35,7 @@ func (ns NullFloat64) Value() (driver.Value, error) {
 
 // MarshalJSON marshals the underlying value to a
 // proper JSON representation.
-func (ns NullFloat64) MarshalJSON() ([]byte, error) {
+func (ns Float64) MarshalJSON() ([]byte, error) {
 	if ns.Valid {
 		return json.Marshal(ns.Float64)
 	}
@@ -44,7 +44,7 @@ func (ns NullFloat64) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON will unmarshal a JSON value into
 // the propert representation of that value.
-func (ns *NullFloat64) UnmarshalJSON(text []byte) error {
+func (ns *Float64) UnmarshalJSON(text []byte) error {
 	t := string(text)
 	ns.Valid = true
 	if t == "null" {
