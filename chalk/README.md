@@ -12,17 +12,20 @@ $ go get https://github.com/markbates/going/chalk
 
 ```go
 // create a pool of 10 go routines
-tasks, errs := chalk.New(10)
+c := chalk.New(10)
 
-tasks <- func() error {
+c.Tasks <- func() error {
   // do some work here
   return nil
 }
 
 // handle err
-tasks <- func() error {
+c.Tasks <- func() error {
   return errors.New("boom!")
 }
 
-err := <-errs
+err := <-c.Errors
+
+// wait for all of the workers to finish
+c.Wait()
 ```
