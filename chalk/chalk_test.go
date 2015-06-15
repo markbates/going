@@ -39,6 +39,9 @@ func Test_Errors(t *testing.T) {
 		return errors.New("boom!")
 	}
 
-	err := <-c.Errors
-	a.Error(err)
+	go func() {
+		err := <-c.Errors
+		a.Error(err)
+	}()
+	c.Wait()
 }

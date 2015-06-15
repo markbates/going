@@ -2,19 +2,28 @@ package chalk
 
 import "sync"
 
-// Handler is the definition of the function that
+// Task is the definition of the function that
 // will be sent to the pool of go routines
-type Handler func() error
+type Task func() error
 
+// Chalk wraps the `sync.WaitGroup` and the channels
+// used to add tasks to the pool and return errors
+// for the tasks in the pool.
 type Chalk struct {
 	*sync.WaitGroup
-	Tasks  chan Handler
+	// Tasks channel receives `Task` functions and
+	// adds them to the pool.
+	Tasks chan Task
+	// Errors handles communication of errors that may
+	// occur when running a `Task` in the pool.
 	Errors chan error
 }
 
+// Wait will close the `c.Tasks` channel and then
+// wait for all of the tasks in the pool to finish.
+// This is a *blocking* operation.
 func (c *Chalk) Wait() {
 	close(c.Tasks)
-	close(c.Errors)
 	c.WaitGroup.Wait()
 }
 
@@ -31,14 +40,14 @@ func (c *Chalk) worker() {
 
 // New creates a new pool N go routines. It will
 // return two channels. The first channel is used
-// to send `Handler` functions to the pool to be
+// to send `Task` functions to the pool to be
 // executed. The second channel can be used to
 // listen for any errors that may occur during the
-// processing of a `Handler`.
+// processing of a `Task`.
 func New(size int) *Chalk {
 	c := Chalk{
 		WaitGroup: &sync.WaitGroup{},
-		Tasks:     make(chan Handler),
+		Tasks:     make(chan Task),
 		Errors:    make(chan error),
 	}
 
@@ -46,45 +55,5 @@ func New(size int) *Chalk {
 		c.Add(1)
 		go c.worker()
 	}
-	// yourLinksSlice := make([]string, 50)
-	// for i := 0; i < 50; i++ {
-	// 	yourLinksSlice[i] = fmt.Sprintf("%d", i+1)
-	// }
-	//
-	// lCh := make(chan string)
-	// wg := new(sync.WaitGroup)
-	//
-	// // Adding routines to workgroup and running then
-	// for i := 0; i < 3; i++ {
-	// 	wg.Add(1)
-	// 	go worker(lCh, wg)
-	// }
-	//
-	// // Processing all links by spreading them to `free` goroutines
-	// for _, link := range yourLinksSlice {
-	// 	lCh <- link
-	// }
-	//
-	// // Closing channel (waiting in goroutines won't continue any more)
-	// close(lCh)
-	//
-	// // Waiting for all goroutines to finish (otherwise they die as main routine dies)
-	// wg.Wait()
-
-	// go func() {
-	// 	for i := 0; i < size; i++ {
-	// 		c.Add(1)
-	// 		go func() {
-	// 			for f := range c.Tasks {
-	// 				fmt.Printf("f: %s\n", f)
-	// 				err := f()
-	// 				if err != nil {
-	// 					c.Errors <- err
-	// 				}
-	// 			}
-	// 			c.Done()
-	// 		}()
-	// 	}
-	// }()
 	return &c
 }
