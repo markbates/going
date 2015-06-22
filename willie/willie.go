@@ -23,6 +23,12 @@ func (r *Response) Bind(x interface{}) {
 	json.NewDecoder(r.Body).Decode(&x)
 }
 
+func (w *Willie) perform(method string, url string, body interface{}) *Response {
+	res, req := w.setupRequest(method, url, body)
+	w.ServeHTTP(res, req)
+	return res
+}
+
 func (w *Willie) setupRequest(method string, url string, body interface{}) (*Response, *http.Request) {
 	b, _ := json.Marshal(body)
 	res := httptest.NewRecorder()
@@ -31,25 +37,17 @@ func (w *Willie) setupRequest(method string, url string, body interface{}) (*Res
 }
 
 func (w *Willie) Get(url string, body interface{}) *Response {
-	res, req := w.setupRequest("GET", url, body)
-	w.ServeHTTP(res, req)
-	return res
+	return w.perform("GET", url, body)
 }
 
 func (w *Willie) Post(url string, body interface{}) *Response {
-	res, req := w.setupRequest("POST", url, body)
-	w.ServeHTTP(res, req)
-	return res
+	return w.perform("POST", url, body)
 }
 
 func (w *Willie) Put(url string, body interface{}) *Response {
-	res, req := w.setupRequest("PUT", url, body)
-	w.ServeHTTP(res, req)
-	return res
+	return w.perform("PUT", url, body)
 }
 
 func (w *Willie) Delete(url string, body interface{}) *Response {
-	res, req := w.setupRequest("DELETE", url, body)
-	w.ServeHTTP(res, req)
-	return res
+	return w.perform("DELETE", url, body)
 }
