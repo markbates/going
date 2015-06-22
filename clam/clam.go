@@ -2,14 +2,18 @@ package clam
 
 import (
 	"bufio"
+	"bytes"
+	"fmt"
 	"os/exec"
 )
 
 func RunAndListen(cmd *exec.Cmd, fn func(s string)) error {
-	var err error
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
 	r, err := cmd.StdoutPipe()
 	if err != nil {
-		return err
+		return fmt.Errorf("%s: %s", err, stderr.String())
 	}
 
 	scanner := bufio.NewScanner(r)
@@ -21,20 +25,25 @@ func RunAndListen(cmd *exec.Cmd, fn func(s string)) error {
 
 	err = cmd.Start()
 	if err != nil {
-		return err
+		return fmt.Errorf("%s: %s", err, stderr.String())
 	}
 
 	err = cmd.Wait()
-	return err
+	if err != nil {
+		return fmt.Errorf("%s: %s", err, stderr.String())
+	}
+	return nil
 }
 
 func Run(cmd *exec.Cmd) (string, error) {
-	var (
-		out []byte
-		err error
-	)
-	if out, err = cmd.Output(); err != nil {
-		return "", err
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		return "", fmt.Errorf("%s: %s", err, stderr.String())
 	}
-	return string(out), err
+
+	return out.String(), err
 }
