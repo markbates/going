@@ -2,15 +2,20 @@ package willie_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"testing"
 
+	"github.com/gorilla/context"
 	"github.com/gorilla/pat"
+	"github.com/gorilla/sessions"
 	"github.com/markbates/going/willie"
 	"github.com/stretchr/testify/require"
 )
+
+var Store sessions.Store = sessions.NewCookieStore([]byte("something-very-secret"))
 
 type record struct {
 	Method string
@@ -51,4 +56,31 @@ func Test_Willie(t *testing.T) {
 		a.Equal(strings.ToUpper(k), r.Method)
 		a.Equal(`["a","b"]`, string(r.Body))
 	}
+}
+
+func Test_WillieSessions(t *testing.T) {
+	r := require.New(t)
+	w := willie.New(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		defer context.Clear(req)
+		sess, _ := Store.Get(req, "my-session")
+		t := sess.Values["foo"]
+		fmt.Printf("t: %s\n", t)
+		if t != nil {
+			res.WriteHeader(200)
+			fmt.Fprint(res, t)
+		} else {
+			sess.Values["foo"] = "bar"
+			sess.Save(req, res)
+			res.WriteHeader(201)
+			fmt.Fprint(res, "setting session")
+		}
+	}))
+
+	res := w.Get("/", nil)
+	r.Equal(201, res.Code)
+	r.Equal("setting session", res.Body.String())
+
+	res = w.Get("/", nil)
+	r.Equal(200, res.Code)
+	r.Equal("bar", res.Body.String())
 }

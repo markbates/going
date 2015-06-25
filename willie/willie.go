@@ -9,10 +9,11 @@ import (
 
 type Willie struct {
 	http.Handler
+	Cookies string
 }
 
 func New(a http.Handler) *Willie {
-	return &Willie{a}
+	return &Willie{Handler: a, Cookies: ""}
 }
 
 type Response struct {
@@ -26,6 +27,7 @@ func (r *Response) Bind(x interface{}) {
 func (w *Willie) perform(method string, url string, body interface{}) *Response {
 	res, req := w.setupRequest(method, url, body)
 	w.ServeHTTP(res, req)
+	w.Cookies = res.Header().Get("Set-Cookie")
 	return res
 }
 
@@ -33,6 +35,7 @@ func (w *Willie) setupRequest(method string, url string, body interface{}) (*Res
 	b, _ := json.Marshal(body)
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest(method, url, bytes.NewReader(b))
+	req.Header.Set("Cookie", w.Cookies)
 	return &Response{res}, req
 }
 
