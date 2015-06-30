@@ -31,6 +31,10 @@ func (r *Response) Bind(x interface{}) {
 	json.NewDecoder(r.Body).Decode(&x)
 }
 
+func (r *Response) URL() string {
+	return r.Header().Get("Location")
+}
+
 func (w *Willie) JSONPerform(method string, url string, body interface{}) *Response {
 	b, _ := json.Marshal(body)
 	res, req := w.SetupRequest(method, url, bytes.NewReader(b))
