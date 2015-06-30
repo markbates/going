@@ -31,20 +31,22 @@ func (r *Response) Bind(x interface{}) {
 	json.NewDecoder(r.Body).Decode(&x)
 }
 
-func (w *Willie) jperform(method string, url string, body interface{}) *Response {
+func (w *Willie) JSONPerform(method string, url string, body interface{}) *Response {
 	b, _ := json.Marshal(body)
-	return w.perform(method, url, bytes.NewReader(b))
+	res, req := w.SetupRequest(method, url, bytes.NewReader(b))
+	w.ServeHTTP(res, req)
+	w.Cookies = res.Header().Get("Set-Cookie")
+	return res
 }
 
-func (w *Willie) xperform(method string, u string, body body) *Response {
+func (w *Willie) Perform(method string, u string, body body) *Response {
 	if body == nil {
 		body = url.Values{}
 	}
-	return w.perform(method, u, strings.NewReader(body.Encode()))
-}
-
-func (w *Willie) perform(method string, url string, body io.Reader) *Response {
-	res, req := w.SetupRequest(method, url, body)
+	res, req := w.SetupRequest(method, u, strings.NewReader(body.Encode()))
+	if method == "POST" {
+		req.Header.Set("Content-type", "application/x-www-form-urlencoded")
+	}
 	w.ServeHTTP(res, req)
 	w.Cookies = res.Header().Get("Set-Cookie")
 	return res
@@ -58,33 +60,33 @@ func (w *Willie) SetupRequest(method string, url string, body io.Reader) (*Respo
 }
 
 func (w *Willie) Get(url string, body body) *Response {
-	return w.xperform("GET", url, body)
+	return w.Perform("GET", url, body)
 }
 
 func (w *Willie) Post(url string, body body) *Response {
-	return w.xperform("POST", url, body)
+	return w.Perform("POST", url, body)
 }
 
 func (w *Willie) Put(url string, body body) *Response {
-	return w.xperform("PUT", url, body)
+	return w.Perform("PUT", url, body)
 }
 
 func (w *Willie) Delete(url string, body body) *Response {
-	return w.xperform("DELETE", url, body)
+	return w.Perform("DELETE", url, body)
 }
 
 func (w *Willie) JSONGet(url string, body interface{}) *Response {
-	return w.jperform("GET", url, body)
+	return w.JSONPerform("GET", url, body)
 }
 
 func (w *Willie) JSONPost(url string, body interface{}) *Response {
-	return w.jperform("POST", url, body)
+	return w.JSONPerform("POST", url, body)
 }
 
 func (w *Willie) JSONPut(url string, body interface{}) *Response {
-	return w.jperform("PUT", url, body)
+	return w.JSONPerform("PUT", url, body)
 }
 
 func (w *Willie) JSONDelete(url string, body interface{}) *Response {
-	return w.jperform("DELETE", url, body)
+	return w.JSONPerform("DELETE", url, body)
 }
