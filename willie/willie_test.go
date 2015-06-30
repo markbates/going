@@ -44,10 +44,10 @@ func Test_Willie(t *testing.T) {
 	w := willie.New(app())
 
 	m := map[string]methodHandler{
-		"get":    w.Get,
-		"post":   w.Post,
-		"put":    w.Put,
-		"delete": w.Delete,
+		"get":    w.JSONGet,
+		"post":   w.JSONPost,
+		"put":    w.JSONPut,
+		"delete": w.JSONDelete,
 	}
 	for k, h := range m {
 		res := h("/"+k, []string{"a", "b"})
