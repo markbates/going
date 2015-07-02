@@ -15,4 +15,7 @@ func Test_GenerateKey(t *testing.T) {
 	r.Equal("created_at", validators.GenerateKey("Created At"))
 	r.Equal("person_id", validators.GenerateKey("PersonID"))
 	r.Equal("content_type", validators.GenerateKey("Content-Type"))
+
+	validators.CustomKeys["ODGroupIDs"] = "od_group_ids"
+	r.Equal("od_group_ids", validators.GenerateKey("ODGroupIDs"))
 }
