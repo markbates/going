@@ -13,6 +13,6 @@ type StringIsPresent struct {
 
 func (v *StringIsPresent) IsValid(errors *validate.Errors) {
 	if v.Field == "" {
-		errors.Add(generateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+		errors.Add(GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
 	}
 }

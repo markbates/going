@@ -1,9 +1,14 @@
 package validators
 
-import "strings"
+import (
+	"strings"
 
-func generateKey(s string) string {
-	key := strings.ToLower(s)
-	key = strings.Replace(key, " ", "_", -1)
+	"github.com/serenize/snaker"
+)
+
+func GenerateKey(s string) string {
+	key := strings.Replace(s, " ", "", -1)
+	key = strings.Replace(key, "-", "", -1)
+	key = snaker.CamelToSnake(key)
 	return key
 }

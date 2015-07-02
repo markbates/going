@@ -13,6 +13,6 @@ type BytesArePresent struct {
 
 func (v *BytesArePresent) IsValid(errors *validate.Errors) {
 	if len(v.Field) == 0 {
-		errors.Add(generateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+		errors.Add(GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
 	}
 }

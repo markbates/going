@@ -16,6 +16,6 @@ type TimeIsBeforeTime struct {
 
 func (v *TimeIsBeforeTime) IsValid(errors *validate.Errors) {
 	if v.FirstTime.UnixNano() > v.SecondTime.UnixNano() {
-		errors.Add(generateKey(v.FirstName), fmt.Sprintf("%s must be before %s.", v.FirstName, v.SecondName))
+		errors.Add(GenerateKey(v.FirstName), fmt.Sprintf("%s must be before %s.", v.FirstName, v.SecondName))
 	}
 }
