@@ -11,9 +11,16 @@ import (
 )
 
 type Request struct {
-	URL     string
-	Willy   *Willy
-	Headers map[string]string
+	URL      string
+	Willy    *Willy
+	Headers  map[string]string
+	Username string
+	Password string
+}
+
+func (r *Request) SetBasicAuth(username, password string) {
+	r.Username = username
+	r.Password = password
 }
 
 func toReader(body interface{}) io.Reader {
@@ -49,6 +56,9 @@ func (r *Request) Put(body interface{}) *Response {
 }
 
 func (r *Request) perform(req *http.Request) *Response {
+	if r.Username != "" || r.Password != "" {
+		req.SetBasicAuth(r.Username, r.Password)
+	}
 	res := &Response{httptest.NewRecorder()}
 	for key, value := range r.Headers {
 		req.Header.Set(key, value)
