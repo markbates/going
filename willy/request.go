@@ -65,6 +65,7 @@ func (r *Request) perform(req *http.Request) *Response {
 	}
 	req.Header.Set("Cookie", r.Willy.Cookies)
 	r.Willy.ServeHTTP(res, req)
-	r.Willy.Cookies = res.Header().Get("Set-Cookie")
+	c := res.HeaderMap["Set-Cookie"]
+	r.Willy.Cookies = strings.Join(c, ";")
 	return res
 }
