@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/ajg/form"
+	"github.com/markbates/hmax"
 )
 
 type Request struct {
@@ -56,6 +57,9 @@ func (r *Request) Put(body interface{}) *Response {
 }
 
 func (r *Request) perform(req *http.Request) *Response {
+	if r.Willy.HmaxSecret != "" {
+		hmax.SignRequest(req, []byte(r.Willy.HmaxSecret))
+	}
 	if r.Username != "" || r.Password != "" {
 		req.SetBasicAuth(r.Username, r.Password)
 	}

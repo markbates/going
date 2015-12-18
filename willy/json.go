@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+
+	"github.com/markbates/hmax"
 )
 
 type JSON struct {
@@ -44,6 +46,9 @@ func (r *JSON) Put(body interface{}) *JSONResponse {
 }
 
 func (r *JSON) perform(req *http.Request) *JSONResponse {
+	if r.Willy.HmaxSecret != "" {
+		hmax.SignRequest(req, []byte(r.Willy.HmaxSecret))
+	}
 	res := &JSONResponse{&Response{httptest.NewRecorder()}}
 	for key, value := range r.Headers {
 		req.Header.Set(key, value)

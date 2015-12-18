@@ -11,8 +11,9 @@ type encodable interface {
 
 type Willy struct {
 	http.Handler
-	Cookies string
-	Headers map[string]string
+	Cookies    string
+	Headers    map[string]string
+	HmaxSecret string
 }
 
 func (w *Willy) Request(u string, args ...interface{}) *Request {
