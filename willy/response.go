@@ -9,3 +9,7 @@ type Response struct {
 func (r *Response) Location() string {
 	return r.Header().Get("Location")
 }
+
+func (r *Response) CloseNotify() <-chan bool {
+	return make(chan bool)
+}

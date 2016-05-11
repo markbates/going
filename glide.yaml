@@ -1,0 +1,8 @@
+package: github.com/markbates/going
+import:
+- package: github.com/ajg/form
+- package: github.com/labstack/echo
+  version: v1
+- package: github.com/markbates/hmax
+- package: github.com/serenize/snaker
+- package: github.com/unrolled/render
