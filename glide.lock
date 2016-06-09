@@ -1,12 +1,12 @@
-hash: d8234322f5aa369ff05dc08fb3d2f8f5c408a09ae4368ce8fd195f25e4553512
-updated: 2016-05-11T16:35:34.496337143-04:00
+hash: f8364742e4864128100d50ab738e4e867fb344a2f0340333dd8962853cd6d5b6
+updated: 2016-06-08T11:05:57.783995801-04:00
 imports:
 - name: github.com/ajg/form
   version: e7b99d6ea9c58e7bb6b2c1059b9ba748cdff22b0
 - name: github.com/labstack/echo
-  version: f12d77f9cf7a374fa39e2e029a439c55e59dbc91
+  version: be5efe5927206c132948c096ad3da6357d922b56
 - name: github.com/labstack/gommon
-  version: b5f03e345acd2096591b6f738cb8d2b9b3231c50
+  version: 741a209b277dcd5705c8568329c0b6e8864dc1d1
   subpackages:
   - log
   - color
