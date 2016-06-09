@@ -8,3 +8,4 @@ import:
 - package: github.com/unrolled/render
 - package: github.com/mattn/go-sqlite3
 - package: github.com/gorilla/pat
+- package: github.com/labstack/gommon
