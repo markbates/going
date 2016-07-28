@@ -20,6 +20,18 @@ type Validator interface {
 	IsValid(errors *Errors)
 }
 
+type vfWrapper struct {
+	vf func(errors *Errors)
+}
+
+func (v vfWrapper) IsValid(errors *Errors) {
+	v.vf(errors)
+}
+
+func ValidatorFunc(fn func(errors *Errors)) Validator {
+	return vfWrapper{fn}
+}
+
 // NewErrors returns a pointer to a Errors
 // object that has been primed and ready to go.
 func NewErrors() *Errors {
