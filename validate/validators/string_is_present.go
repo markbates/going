@@ -2,6 +2,7 @@ package validators
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/markbates/going/validate"
 )
@@ -12,7 +13,7 @@ type StringIsPresent struct {
 }
 
 func (v *StringIsPresent) IsValid(errors *validate.Errors) {
-	if v.Field == "" {
+	if strings.TrimSpace(v.Field) == "" {
 		errors.Add(GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
 	}
 }
