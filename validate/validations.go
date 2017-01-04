@@ -2,6 +2,7 @@ package validate
 
 import (
 	"encoding/json"
+	"strings"
 	"sync"
 
 	"github.com/markbates/going/wait"
@@ -39,6 +40,15 @@ func NewErrors() *Errors {
 		Errors: make(map[string][]string),
 		Lock:   new(sync.RWMutex),
 	}
+}
+
+// Error implements the error interface
+func (v *Errors) Error() string {
+	errs := []string{}
+	for _, v := range v.Errors {
+		errs = append(errs, v...)
+	}
+	return strings.Join(errs, "\n")
 }
 
 // Count returns the number of errors.
