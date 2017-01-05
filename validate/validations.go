@@ -2,11 +2,16 @@ package validate
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"sync"
 
 	"github.com/markbates/going/wait"
 )
+
+func init() {
+	fmt.Println("This package has been deprecated. Please use github.com/markbates/validate instead.")
+}
 
 // Errors holds onto all of the error messages
 // that get generated during the validation process.

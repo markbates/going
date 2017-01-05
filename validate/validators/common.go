@@ -1,10 +1,15 @@
 package validators
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/serenize/snaker"
 )
+
+func init() {
+	fmt.Println("This package has been deprecated. Please use github.com/markbates/validate instead.")
+}
 
 var CustomKeys = map[string]string{}
 
