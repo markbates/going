@@ -1,20 +1,33 @@
 package randx
 
 import (
-	"crypto/md5"
-	"fmt"
 	"math/rand"
 	"time"
 )
 
-func String(length int) string {
-	s := ""
-	for len(s) < length {
-		data := []byte(fmt.Sprintf("%x%x", time.Now().UnixNano(), rand.Int63()))
-		s += fmt.Sprintf("%x", md5.Sum(data))
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const (
+	letterIdxBits = 6                    // 6 bits to represent a letter index
+	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
+	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
+)
+
+var src = rand.NewSource(time.Now().UnixNano())
+
+func String(n int) string {
+	b := make([]byte, n)
+	// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
+		if remain == 0 {
+			cache, remain = src.Int63(), letterIdxMax
+		}
+		if idx := int(cache & letterIdxMask); idx < len(letterBytes) {
+			b[i] = letterBytes[idx]
+			i--
+		}
+		cache >>= letterIdxBits
+		remain--
 	}
-	if len(s) > length {
-		return s[:length]
-	}
-	return s
+
+	return string(b)
 }
