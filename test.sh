@@ -1,4 +1,4 @@
 #!/bin/bash
 
 clear
-go test $(glide novendor)
+go test -race ./...
